@@ -24,7 +24,7 @@ export default function NameSurname() {
                             <View style={styles.progressIndicator}></View>
                         </View>
                     </View>
-                    <Text style={styles.headerText}>Ad soyad gir</Text>
+                    <Text style={styles.headerText}>Üyelik bilgilerinizi girin</Text>
                 </View>
             </View>
 
@@ -47,11 +47,8 @@ export default function NameSurname() {
             
             {/* Üye ol ve hesabım var linkleri */}
             <View style={styles.linkContainer}>
-                <Link href="/" style={styles.button}>
-                    <Text style={styles.buttonText}>Üye ol</Text>
-                </Link>
-                <Link href="/" style={styles.button}>
-                    <Text style={styles.buttonText}>Zaten bir hesabım var</Text>
+                <Link href="/password" style={styles.button}>
+                    <Text style={styles.buttonText}>Devam et</Text>
                 </Link>
             </View>
         </SafeAreaView>
@@ -72,14 +69,14 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     progressBar: {
-        height: 6,
+        height: 10,
         backgroundColor: "#D0D5DD",
         borderRadius: 9999,
         overflow: 'hidden',
     },
     progressIndicator: {
         height: '100%',
-        width: '25%',
+        width: '50%',
         backgroundColor: "#3B82F6",
     },
     headerText: {

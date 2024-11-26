@@ -24,7 +24,7 @@ export default function Email() {
                             <View style={styles.progressIndicator}></View>
                         </View>
                     </View>
-                    <Text style={styles.headerText}>E-postanı gir</Text>
+                    <Text style={styles.headerText}>E-postanızı girin</Text>
                 </View>
             </View>
 
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
     progressBar: {
-        height: 6,
+        height: 10,
         backgroundColor: "#D0D5DD",
         borderRadius: 9999,
         overflow: 'hidden',
