@@ -1,40 +1,59 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView } from "react-native";
-import { Link } from "expo-router";
+import { View, Text, StyleSheet, TextInput, Alert, SafeAreaView, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
 import Icons from 'react-native-vector-icons/AntDesign';
+import { commonStyles, FONTS, SIZES } from './styles';
 
 export default function Email() {
+    const router = useRouter();
     const [email, setEmail] = useState('');
-    
+
     const arrowLeft = <Icons name="arrowleft" size={24} color="#697565" />;
     const user = <Icons name="user" size={20} color="#888" />;
 
     const handleEmailChange = (text) => {
-        setEmail(text);
+        setEmail(text); x
     };
 
-    return(
-        <SafeAreaView style={styles.container}>
+    const validateEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
+
+    const handleContinue = () => {
+        if (validateEmail(email)) {
+            // Geçerli email ise ileriye git
+            router.push('/nameSurname');
+        } else {
+            // Hata mesajı göster ve geçişi engelle
+            Alert.alert('Geçersiz Email', 'Lütfen geçerli bir email adresi girin.');
+        }
+    };
+
+    return (
+        <SafeAreaView style={commonStyles.container}>
             {/* Geri dön, ilerleme çubuğu, e-postanı gir başlığı */}
-            <View style={styles.tabHeader}>
-                <Link href="/">{arrowLeft}</Link>
+            <View style={commonStyles.tabHeader}>
+                <TouchableOpacity onPress={() => router.back()}>
+                    {arrowLeft}
+                </TouchableOpacity>
                 <View>
-                    <View style={styles.progressContainer}>
-                        <View style={styles.progressBar}>
-                            <View style={styles.progressIndicator}></View>
+                    <View style={commonStyles.progressContainer}>
+                        <View style={commonStyles.progressBar}>
+                            <View style={commonStyles.progressIndicator}></View>
                         </View>
                     </View>
-                    <Text style={styles.headerText}>E-postanızı girin</Text>
+                    <Text style={FONTS.h1}>E-postanızı girin</Text>
                 </View>
             </View>
 
             {/* E-posta girme alanı */}
-            <View style={styles.inputContainer}>
+            <View style={commonStyles.inputContainer}>
                 <Text style={styles.labelText}>Mail adresi</Text>
                 <View style={styles.emailInputContainer}>
                     {user}
-                    <TextInput 
-                        style={styles.input} 
+                    <TextInput
+                        style={styles.input}
                         placeholder="E-posta adresinizi girin"
                         placeholderTextColor="#999"
                         keyboardType="email-address"
@@ -46,11 +65,17 @@ export default function Email() {
             </View>
             {/* Üye ol ve hesabım var linkleri */}
             <View style={styles.linkContainer}>
-                <Link href="/nameSurname" style={styles.button}>
-                    <Text style={styles.buttonText}>Üye ol</Text>
-                </Link>
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Zaten bir hesabım var</Text>
+                <TouchableOpacity
+                    style={commonStyles.button}
+                    onPress={handleContinue}
+                >
+                    <Text style={commonStyles.buttonText}>Üye ol</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={commonStyles.button}
+                    onPress={() => router.push('/login')}
+                >
+                    <Text style={commonStyles.buttonText}>Zaten bir hesabım var</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -58,38 +83,6 @@ export default function Email() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        paddingHorizontal: 16,
-    },
-    tabHeader: {
-        paddingTop: 20,
-        marginBottom: 40,
-    },
-    progressContainer: {
-        marginTop: 16,
-    },
-    progressBar: {
-        height: 10,
-        backgroundColor: "#D0D5DD",
-        borderRadius: 9999,
-        overflow: 'hidden',
-    },
-    progressIndicator: {
-        height: '100%',
-        width: '25%',
-        backgroundColor: "#3B82F6",
-    },
-    headerText: {
-        fontSize: 32,
-        fontWeight: '700',
-        marginTop: 16,
-        color: '#333',
-    },
-    inputContainer: {
-        marginBottom: 40,
-    },
     labelText: {
         marginBottom: 10,
         color: '#555',
@@ -112,18 +105,5 @@ const styles = StyleSheet.create({
     },
     linkContainer: {
         gap: 16,
-    },
-    button: {
-        backgroundColor: "#eeeeee",
-        borderWidth: 1,
-        borderColor: "#000",
-        borderRadius: 8,
-        paddingVertical: 12,
-    },
-    buttonText: {
-        fontSize: 18,
-        fontWeight: '500',
-        color: '#333',
-        textAlign: 'center',
     },
 });

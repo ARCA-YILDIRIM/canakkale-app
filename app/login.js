@@ -3,8 +3,14 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, Scro
 import { Link } from "expo-router";
 import Icons from 'react-native-vector-icons/AntDesign';
 import Icons2 from 'react-native-vector-icons/Feather';
+import { useRouter } from "expo-router";
 
 export default function Login() {
+    const router = useRouter();
+    const userInfo = {
+        email: 'ahmet@gmail.com',
+        password: 123456,
+    };
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -12,22 +18,20 @@ export default function Login() {
     const arrowLeft = <Icons name="arrowleft" size={24} color="#697565" />;
 
     const handleLogin = () => {
-        // Giriş işlemi için fonksiyon
-        console.log('Giriş yapılıyor', email, password);
+        if (email === userInfo.email && parseInt(password) === userInfo.password) {
+            router.push('./mainPage');
+        } else {
+            alert('kullanici adi veya sifre yanlis');
+        }
     };
 
-    return(
+    return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
                 {/* Geri dön, ilerleme çubuğu, giriş başlığı */}
                 <View style={styles.tabHeader}>
-                    <Link href="/">{arrowLeft}</Link>
+                    <Link href="/password">{arrowLeft}</Link>
                     <View>
-                        <View style={styles.progressContainer}>
-                            <View style={styles.progressBar}>
-                                <View style={styles.progressIndicator}></View>
-                            </View>
-                        </View>
                         <Text style={styles.headerText}>Giriş Yap</Text>
                     </View>
                 </View>
@@ -37,8 +41,8 @@ export default function Login() {
                     <Text style={styles.labelText}>E-posta</Text>
                     <View style={styles.inputWrapper}>
                         <Icons name="user" size={20} color="#888" />
-                        <TextInput 
-                            style={styles.input} 
+                        <TextInput
+                            style={styles.input}
                             placeholder="E-posta adresinizi girin"
                             placeholderTextColor="#999"
                             keyboardType="email-address"
@@ -51,8 +55,8 @@ export default function Login() {
                     <Text style={styles.labelText}>Şifre</Text>
                     <View style={styles.inputWrapper}>
                         <Icons name="lock" size={20} color="#888" />
-                        <TextInput 
-                            style={styles.input} 
+                        <TextInput
+                            style={styles.input}
                             placeholder="Şifrenizi girin"
                             placeholderTextColor="#999"
                             secureTextEntry={!showPassword}
@@ -60,10 +64,10 @@ export default function Login() {
                             onChangeText={setPassword}
                         />
                         <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                            <Icons2 
-                                name={showPassword ? "eye" : "eye-off"} 
-                                size={20} 
-                                color="#888" 
+                            <Icons2
+                                name={showPassword ? "eye" : "eye-off"}
+                                size={20}
+                                color="#888"
                             />
                         </TouchableOpacity>
                     </View>
@@ -75,9 +79,9 @@ export default function Login() {
                 </View>
 
                 {/* Giriş Yap Butonu */}
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={[
-                        styles.loginButton, 
+                        styles.loginButton,
                         (email && password) ? styles.activeButton : styles.inactiveButton
                     ]}
                     onPress={handleLogin}
@@ -89,7 +93,7 @@ export default function Login() {
                 {/* Kayıt Ol Bölümü */}
                 <View style={styles.registerContainer}>
                     <Text style={styles.registerText}>Hesabın yok mu?</Text>
-                    <Link href="/register" style={styles.registerLink}>
+                    <Link href="/email" style={styles.registerLink}>
                         <Text style={styles.registerLinkText}>Kayıt Ol</Text>
                     </Link>
                 </View>

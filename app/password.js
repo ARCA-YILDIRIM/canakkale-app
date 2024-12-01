@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: 'white',
-        fontSize: 18,
+        fontSize: 18, 
         fontWeight: '500',
         textAlign: 'center',
     },
