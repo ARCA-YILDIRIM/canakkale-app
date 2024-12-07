@@ -5,7 +5,10 @@ import { View, Text } from 'react-native'
 const Profile = () => {
     return (
         <View>
-            <Text>Profile</Text>
+            <TouchableOpacity style={commonStyles.button} onPress={() => router.back()}>
+                <Text style={commonStyles.buttonText}>Geri Dön</Text>
+            </TouchableOpacity>
+            <Text style={FONTS.h1}>hazirlaniyor</Text>
         </View>
     )
 }

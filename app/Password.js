@@ -67,6 +67,7 @@ export default function Password() {
                             style={styles.input}
                             placeholder="Şifrenizi girin"
                             placeholderTextColor="#999"
+                            autoCapitalize="none"
                             secureTextEntry={!showPassword} // şifreyi gizlemek için
                             value={password} // girilen şifre password değişkenine atanır
                             onChangeText={handlePasswordChange} // her harf girildiğinde çalışacak fonksiyon
@@ -88,6 +89,7 @@ export default function Password() {
                             style={styles.input}
                             placeholder="Şifrenizi tekrar girin"
                             placeholderTextColor="#999"
+                            autoCapitalize="none"
                             secureTextEntry={!showConfirmPassword}
                             value={confirmPassword}
                             onChangeText={handleConfirmPasswordChange}

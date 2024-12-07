@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions, Animated } from "react-native";
+import { View, Dimensions, Animated } from "react-native";
 import { useRouter } from "expo-router";
 import { commonStyles } from './Styles';
 import Logo from '../assets/CANAKKALE.svg';
 const { width, height } = Dimensions.get('window');
+
 
 export default function Main() {
     const router = useRouter();
@@ -47,7 +48,7 @@ export default function Main() {
     }, []);
 
     return (
-        <View style={styles.container}>
+        <View style={commonStyles.container}>
             <Animated.View style={{
                 opacity: fadeAnim,
                 transform: [
@@ -62,12 +63,3 @@ export default function Main() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#FFFFFF",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-});

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
-import { Link } from "expo-router";
+import { View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView, Alert } from "react-native";
 import Icons from 'react-native-vector-icons/AntDesign';
 import Icons2 from 'react-native-vector-icons/Feather';
 import { useRouter } from "expo-router";
+import Logo from '../assets/CANAKKALE.svg';
+import { COLORS, commonStyles, FONTS, SIZES } from './Styles';
+
 
 export default function Login() {
     const router = useRouter();
+    // Kullanıcı bilgileri (örnek)
     const userInfo = {
         email: 'ahmet@gmail.com',
         password: 123456,
@@ -15,34 +18,41 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-    const arrowLeft = <Icons name="arrowleft" size={24} color="#697565" />;
-
+    // Giriş yap fonksiyonu
     const handleLogin = () => {
+        // Kullanıcı bilgileri doğruysa anasayfaya yönlendirme
         if (email === userInfo.email && parseInt(password) === userInfo.password) {
-            router.push('./Home');
+            router.push('/Home');
+            // Eğer bilgiler yanlışsa hata mesajı gösterme
         } else {
-            alert('kullanici adi veya sifre yanlis');
+            Alert.alert('Oops', 'E-posta veya şifre hatalı!',
+                [{ text: 'Tamam' },
+                {
+                    // Şifremi unuttum kismi
+                    text: 'Şifremi Unuttum',
+                    onPress: () => router.push('./ForgotPassword'), // sifremi unuttum sayfasina yonlendirme
+                }]
+            );
         }
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
-                {/* Geri dön, ilerleme çubuğu, giriş başlığı */}
-                <View style={styles.tabHeader}>
-                    <Link href="/Email">{arrowLeft}</Link>
-                    <View>
-                        <Text style={styles.headerText}>Giriş Yap</Text>
-                    </View>
+
+        <SafeAreaView style={commonStyles.containerRegister}>
+            <ScrollView >
+                {/* giriş yap yazısı ve logo */}
+                <View style={commonStyles.tabHeaderLogin}>
+                    <Text style={FONTS.h1}>Giriş Yap</Text>
+                    <Logo width={100} height={100} />
                 </View>
 
                 {/* Giriş bilgileri alanları */}
-                <View style={styles.inputContainer}>
-                    <Text style={styles.labelText}>E-posta</Text>
-                    <View style={styles.inputWrapper}>
+                <View style={commonStyles.inputContainer}>
+                    <Text style={[commonStyles.labelText, FONTS.body]}>E-posta</Text>
+                    <View style={commonStyles.inputWrapper}>
                         <Icons name="user" size={20} color="#888" />
                         <TextInput
-                            style={styles.input}
+                            style={commonStyles.input}
                             placeholder="E-posta adresinizi girin"
                             placeholderTextColor="#999"
                             keyboardType="email-address"
@@ -52,11 +62,11 @@ export default function Login() {
                         />
                     </View>
 
-                    <Text style={styles.labelText}>Şifre</Text>
-                    <View style={styles.inputWrapper}>
+                    <Text style={[commonStyles.labelText, FONTS.body]}>Şifre</Text>
+                    <View style={commonStyles.inputWrapper}>
                         <Icons name="lock" size={20} color="#888" />
                         <TextInput
-                            style={styles.input}
+                            style={commonStyles.input}
                             placeholder="Şifrenizi girin"
                             placeholderTextColor="#999"
                             secureTextEntry={!showPassword}
@@ -73,152 +83,32 @@ export default function Login() {
                     </View>
 
                     {/* Şifremi Unuttum Linki */}
-                    <TouchableOpacity style={styles.forgotPasswordContainer}>
-                        <Text style={styles.forgotPasswordText}>Şifremi Unuttum</Text>
+                    <TouchableOpacity style={commonStyles.alignRight} onPress={() => router.push('./ForgotPassword')}>
+                        <Text style={[FONTS.smallBody, { color: COLORS.primary }]}>Şifremi Unuttum</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Giriş Yap Butonu */}
                 <TouchableOpacity
                     style={[
-                        styles.loginButton,
-                        (email && password) ? styles.activeButton : styles.inactiveButton
+                        commonStyles.button,
+                        (email && password) ? commonStyles.activeButton : commonStyles.inactiveButton
                     ]}
                     onPress={handleLogin}
                     disabled={!(email && password)}
                 >
-                    <Text style={styles.loginButtonText}>Giriş Yap</Text>
+                    <Text style={commonStyles.buttonText}>Giriş Yap</Text>
                 </TouchableOpacity>
 
-                {/* Kayıt Ol Bölümü */}
-                <View style={styles.registerContainer}>
-                    <Text style={styles.registerText}>Hesabın yok mu?</Text>
-                    <Link href="/Email" style={styles.registerLink}>
-                        <Text style={styles.registerLinkText}>Kayıt Ol</Text>
-                    </Link>
-                </View>
+                {/* Kayıt Ol Linki */}
+                <Text style={{ textAlign: "center", fontSize: 14, marginBottom: SIZES.base }}>Henüz bir hesabın yok mu?</Text>
+                <TouchableOpacity style={commonStyles.button} onPress={() => router.push("/Email")}>
+                    <Text style={commonStyles.buttonText}> Kayıt Ol</Text>
+                </TouchableOpacity>
 
-                {/* Sosyal Medya Girişleri ilerde eklenebilir */}
+                {/* gmail ile giris eklenecek */}
 
             </ScrollView>
         </SafeAreaView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    scrollContainer: {
-        paddingHorizontal: 16,
-        paddingBottom: 20,
-    },
-    tabHeader: {
-        paddingTop: 20,
-        marginBottom: 40,
-    },
-    progressContainer: {
-        marginTop: 16,
-    },
-    progressBar: {
-        height: 6,
-        backgroundColor: "#D0D5DD",
-        borderRadius: 9999,
-        overflow: 'hidden',
-    },
-    progressIndicator: {
-        height: '100%',
-        width: '75%',
-        backgroundColor: "#3B82F6",
-    },
-    headerText: {
-        fontSize: 32,
-        fontWeight: '700',
-        marginTop: 16,
-        color: '#333',
-    },
-    inputContainer: {
-        marginBottom: 20,
-    },
-    labelText: {
-        marginBottom: 10,
-        color: '#555',
-        fontSize: 16,
-    },
-    inputWrapper: {
-        flexDirection: "row",
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: '#D1D5DB',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        marginBottom: 15,
-    },
-    input: {
-        flex: 1,
-        marginLeft: 10,
-        fontSize: 16,
-        color: '#333',
-    },
-    forgotPasswordContainer: {
-        alignSelf: 'flex-end',
-        marginBottom: 20,
-    },
-    forgotPasswordText: {
-        color: '#3B82F6',
-        fontSize: 14,
-    },
-    loginButton: {
-        borderRadius: 8,
-        paddingVertical: 12,
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    activeButton: {
-        backgroundColor: '#3B82F6',
-    },
-    inactiveButton: {
-        backgroundColor: '#D1D5DB',
-    },
-    loginButtonText: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: '500',
-    },
-    registerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    registerText: {
-        color: '#666',
-        marginRight: 5,
-    },
-    registerLink: {
-        marginLeft: 5,
-    },
-    registerLinkText: {
-        color: '#3B82F6',
-        fontWeight: '600',
-    },
-    socialLoginContainer: {
-        alignItems: 'center',
-    },
-    socialLoginText: {
-        color: '#666',
-        marginBottom: 15,
-    },
-    socialButtonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        gap: 20,
-    },
-    socialButton: {
-        padding: 10,
-        backgroundColor: '#F3F4F6',
-        borderRadius: 8,
-    },
-});

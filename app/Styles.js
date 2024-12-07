@@ -7,14 +7,16 @@ export const COLORS = {
     background: '#FFFFFF',
     text: '#333333',
     placeholder: '#999999',
-    border: '#D1D5DB'
+    border: '#D1D5DB',
+    label: '#555',
+    button: '#344054'
 };
 
 export const SIZES = {
     width,
     height,
     base: 10,
-    font: 14,
+    font: 16,
     radius: 12,
     padding: 16
 };
@@ -31,12 +33,20 @@ export const FONTS = {
     },
     body: {
         fontSize: 16,
-        fontWeight: '400'
+    },
+    smallBody: {
+        fontSize: 14,
     }
 };
 
 export const commonStyles = {
     container: {
+        flex: 1,
+        backgroundColor: "#FFFFFF",
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    containerRegister: {
         flex: 1,
         backgroundColor: COLORS.background,
         paddingHorizontal: SIZES.padding
@@ -45,7 +55,13 @@ export const commonStyles = {
         paddingTop: SIZES.padding,
         marginBottom: SIZES.padding * 2
     },
-    progressContainer: {
+    tabHeaderLogin: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    marginTop: {
         marginTop: SIZES.base
     },
     progressBar: {
@@ -72,28 +88,45 @@ export const commonStyles = {
     inputContainer: {
         marginBottom: SIZES.padding * 2
     },
+    labelText: {
+        marginBottom: SIZES.base,
+        color: COLORS.label,
+    },
     inputWrapper: {
         flexDirection: "row",
         alignItems: "center",
         borderWidth: 1,
-        borderColor: COLORS.border,
+        borderColor: '#D1D5DB',
         borderRadius: SIZES.radius,
-        paddingHorizontal: SIZES.base,
-        paddingVertical: SIZES.base / 2
+        paddingHorizontal: SIZES.base * 1.2,
+        paddingVertical: SIZES.base * 0.8,
+        marginBottom: SIZES.base * 1.5,
+    },
+    input: {
+        flex: 1,
+        marginLeft: SIZES.base,
+        fontSize: SIZES.font,
+        color: COLORS.text,
     },
     button: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: COLORS.button,
         borderRadius: SIZES.radius,
         paddingVertical: SIZES.base * 1.5,
         alignItems: 'center',
-        marginTop: SIZES.padding
+        marginBottom: SIZES.base * 1.5,
     },
     buttonText: {
         color: COLORS.background,
         fontSize: SIZES.font,
         fontWeight: '600'
     },
-    marginTop: {
-        marginTop: SIZES.base
+    activeButton: {
+        backgroundColor: COLORS.button,
+    },
+    inactiveButton: {
+        backgroundColor: COLORS.border,
+    },
+    alignRight: {
+        alignSelf: 'flex-end'
     },
 };

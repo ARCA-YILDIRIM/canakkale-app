@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Alert, SafeAreaView, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, SafeAreaView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import Icons from 'react-native-vector-icons/AntDesign';
-import { commonStyles } from './Styles';
+import { commonStyles, FONTS, SIZES } from './Styles';
 import PageHeader from '../components/PageHeader';
 
 export default function Email() {
     const router = useRouter();
     const [email, setEmail] = useState('');
+    const [errorMessage, setErrorMessage] = useState(''); // Hata mesajını saklamak için state
     const user = <Icons name="user" size={20} color="#888" />;
 
     const handleEmailChange = (text) => {
         setEmail(text);
+        setErrorMessage(''); // Kullanıcı her yazdığında hata mesajını sıfırla
     };
 
     const validateEmail = (email) => {
@@ -21,26 +23,27 @@ export default function Email() {
 
     const handleContinue = () => {
         if (validateEmail(email)) {
-            // Geçerli email ise ileriye git
+            // Eğer e-posta geçerliyse, hata mesajını sıfırla ve ileriye git
+            setErrorMessage('');
             router.push('/Name');
         } else {
-            // Hata mesajı göster ve geçişi engelle
-            Alert.alert('Geçersiz Email', 'Lütfen geçerli bir email adresi girin.');
+            // Geçersiz e-posta için hata mesajını güncelle
+            setErrorMessage('Lütfen geçerli bir e-posta adresi girin.');
         }
     };
 
     return (
-        <SafeAreaView style={commonStyles.container}>
-            {/* UST KISIM Component */}
+        <SafeAreaView style={commonStyles.containerRegister}>
+            {/* Üst Kısım Component */}
             <PageHeader headerText="E-postanızı girin" progressIndicatorState="progressIndicator25" />
 
-            {/* E-posta girme alanı */}
+            {/* E-posta Girme Alanı */}
             <View style={commonStyles.inputContainer}>
-                <Text style={styles.labelText}>Mail adresi</Text>
-                <View style={styles.emailInputContainer}>
+                <Text style={[commonStyles.labelText, FONTS.body]}>Mail adresi</Text>
+                <View style={commonStyles.inputWrapper}>
                     {user}
                     <TextInput
-                        style={styles.input}
+                        style={commonStyles.input}
                         placeholder="E-posta adresinizi girin"
                         placeholderTextColor="#999"
                         keyboardType="email-address"
@@ -49,45 +52,28 @@ export default function Email() {
                         onChangeText={handleEmailChange}
                     />
                 </View>
+                {/* Hata Mesajı */}
+                {errorMessage ? (
+                    <Text style={{ color: 'red', marginTop: 5 }}>{errorMessage}</Text>
+                ) : null}
             </View>
-            {/* Üye ol ve hesabım var linkleri */}
-            <View style={styles.linkContainer}>
+
+            {/* Üye Ol ve Hesabım Var Linkleri */}
+            <View>
                 <TouchableOpacity
                     style={commonStyles.button}
                     onPress={handleContinue}
                 >
                     <Text style={commonStyles.buttonText}>Üye ol</Text>
                 </TouchableOpacity>
+                <Text style={{ textAlign: "center", fontSize: 14, marginBottom: SIZES.base }}>Zaten bir hesabınız var mı?</Text>
                 <TouchableOpacity
                     style={commonStyles.button}
                     onPress={() => router.push('/Login')}
                 >
-                    <Text style={commonStyles.buttonText}>Zaten bir hesabım var</Text>
+                    <Text style={commonStyles.buttonText}>Giriş sayfası</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
 }
-
-const styles = StyleSheet.create({
-    labelText: {
-        marginBottom: 10,
-        color: '#555',
-        fontSize: 16,
-    },
-    emailInputContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: '#D1D5DB',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-    },
-    input: {
-        flex: 1,
-        marginLeft: 10,
-        fontSize: 16,
-        color: '#333',
-    }
-});
