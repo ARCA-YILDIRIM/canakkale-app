@@ -1,40 +1,53 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, SafeAreaView } from "react-native";
-import { Link } from "expo-router";
+import { View, Text, TextInput, SafeAreaView, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
 import Icons from 'react-native-vector-icons/AntDesign';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { commonStyles, FONTS, SIZES } from './styles';
+import PageHeader from '../components/PageHeader';
 
 export default function Email() {
+    const router = useRouter();
     const [email, setEmail] = useState('');
-    
-    const arrowLeft = <Icons name="arrowleft" size={24} color="#697565" />;
+    const [errorMessage, setErrorMessage] = useState('');
     const user = <Icons name="user" size={20} color="#888" />;
 
     const handleEmailChange = (text) => {
         setEmail(text);
+        setErrorMessage('');
     };
 
-    return(
-        <SafeAreaView style={styles.container}>
-            {/* Geri dön, ilerleme çubuğu, e-postanı gir başlığı */}
-            <View style={styles.tabHeader}>
-                <Link href="/">{arrowLeft}</Link>
-                <View>
-                    <View style={styles.progressContainer}>
-                        <View style={styles.progressBar}>
-                            <View style={styles.progressIndicator}></View>
-                        </View>
-                    </View>
-                    <Text style={styles.headerText}>E-postanı gir</Text>
-                </View>
-            </View>
+    const validateEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
 
-            {/* E-posta girme alanı */}
-            <View style={styles.inputContainer}>
-                <Text style={styles.labelText}>Mail adresi</Text>
-                <View style={styles.emailInputContainer}>
+    const handleContinue = async () => {
+        if (validateEmail(email)) {
+            try {
+                // Email'i AsyncStorage'a kaydet
+                await AsyncStorage.setItem('email', email);
+                setErrorMessage('');
+                router.push('/name');
+            } catch (error) {
+                setErrorMessage('Email kaydedilirken bir hata oluştu.');
+                console.error('Storage error:', error);
+            }
+        } else {
+            setErrorMessage('Lütfen geçerli bir e-posta adresi girin.');
+        }
+    };
+
+    return (
+        <SafeAreaView style={commonStyles.containerRegister}>
+            <PageHeader headerText="E-postanızı girin" progressIndicatorState="progressIndicator25" />
+
+            <View style={commonStyles.inputContainer}>
+                <Text style={[commonStyles.labelText, FONTS.body]}>Mail adresi</Text>
+                <View style={commonStyles.inputWrapper}>
                     {user}
-                    <TextInput 
-                        style={styles.input} 
+                    <TextInput
+                        style={commonStyles.input}
                         placeholder="E-posta adresinizi girin"
                         placeholderTextColor="#999"
                         keyboardType="email-address"
@@ -43,87 +56,28 @@ export default function Email() {
                         onChangeText={handleEmailChange}
                     />
                 </View>
+                {errorMessage ? (
+                    <Text style={{ color: 'red', marginTop: 5 }}>{errorMessage}</Text>
+                ) : null}
             </View>
-            {/* Üye ol ve hesabım var linkleri */}
-            <View style={styles.linkContainer}>
-                <Link href="/nameSurname" style={styles.button}>
-                    <Text style={styles.buttonText}>Üye ol</Text>
-                </Link>
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Zaten bir hesabım var</Text>
+
+            <View>
+                <TouchableOpacity
+                    style={commonStyles.button}
+                    onPress={handleContinue}
+                >
+                    <Text style={commonStyles.buttonText}>Üye ol</Text>
+                </TouchableOpacity>
+                <Text style={{ textAlign: "center", fontSize: 14, marginBottom: SIZES.base }}>
+                    Zaten bir hesabınız var mı?
+                </Text>
+                <TouchableOpacity
+                    style={commonStyles.button}
+                    onPress={() => router.push('/login')}
+                >
+                    <Text style={commonStyles.buttonText}>Giriş sayfası</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        paddingHorizontal: 16,
-    },
-    tabHeader: {
-        paddingTop: 20,
-        marginBottom: 40,
-    },
-    progressContainer: {
-        marginTop: 16,
-    },
-    progressBar: {
-        height: 6,
-        backgroundColor: "#D0D5DD",
-        borderRadius: 9999,
-        overflow: 'hidden',
-    },
-    progressIndicator: {
-        height: '100%',
-        width: '25%',
-        backgroundColor: "#3B82F6",
-    },
-    headerText: {
-        fontSize: 32,
-        fontWeight: '700',
-        marginTop: 16,
-        color: '#333',
-    },
-    inputContainer: {
-        marginBottom: 40,
-    },
-    labelText: {
-        marginBottom: 10,
-        color: '#555',
-        fontSize: 16,
-    },
-    emailInputContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: '#D1D5DB',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-    },
-    input: {
-        flex: 1,
-        marginLeft: 10,
-        fontSize: 16,
-        color: '#333',
-    },
-    linkContainer: {
-        gap: 16,
-    },
-    button: {
-        backgroundColor: "#eeeeee",
-        borderWidth: 1,
-        borderColor: "#000",
-        borderRadius: 8,
-        paddingVertical: 12,
-    },
-    buttonText: {
-        fontSize: 18,
-        fontWeight: '500',
-        color: '#333',
-        textAlign: 'center',
-    },
-});

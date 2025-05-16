@@ -1,0 +1,2 @@
+react, jsx dosyaları ile yazılır.
+jsx dosyalarının js dosyalarından farkı html içinde basit bir şekilde javascript yazmamıza imkan tanımasıdır.

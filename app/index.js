@@ -1,59 +1,65 @@
-import { View, Text, StyleSheet, Image, } from "react-native";
-import { Link } from "expo-router"
+import React, { useEffect, useRef } from 'react';
+import { View, Dimensions, Animated } from "react-native";
+import { useRouter } from "expo-router";
+import { commonStyles } from './styles';
+import Logo from '../assets/CANAKKALE.svg';
+const { width, height } = Dimensions.get('window');
 
 
 export default function Main() {
-    const loginScreen = require("../assets/giris_ekrani.png")
+    const router = useRouter();
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const scaleAnim = useRef(new Animated.Value(0.8)).current;
+
+    useEffect(() => {
+        // Giriş animasyonu
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 1000,
+                useNativeDriver: true,
+            }),
+            Animated.timing(scaleAnim, {
+                toValue: 1,
+                duration: 1000,
+                useNativeDriver: true,
+            })
+        ]).start();
+
+        // Çıkış animasyonu ve sayfa geçişi
+        const timer = setTimeout(() => {
+            Animated.parallel([
+                Animated.timing(fadeAnim, {
+                    toValue: 0,
+                    duration: 800,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(scaleAnim, {
+                    toValue: 1.2,
+                    duration: 800,
+                    useNativeDriver: true,
+                })
+            ]).start(() => {
+                router.replace('/login');
+            });
+        }, 2200);
+
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
-        <View style={styles.container}>{/*yorum satirlari koyulacak projeye*/}
-            <View style={styles.welcomeContainer}>
-                <Text style={styles.headerText}>ÇANAKKALE'YE</Text>
-                <Image source={loginScreen} />
-                <Text style={styles.headerText}> HOŞGELDİNİZ</Text>
-            </View>
-            <View style={styles.startContainer}>
-                <Link href="/email" style={styles.button}>Keşfedin</Link>
-            </View>
+        <View style={commonStyles.container}>
+            <Animated.View style={{
+                opacity: fadeAnim,
+                transform: [
+                    { scale: scaleAnim }
+                ]
+            }}>
+                <Logo
+                    width={width * 1.2}
+                    height={height * 0.6}
+                />
+            </Animated.View>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        // flex direction column old icin yatay eksen alignItems, dikey eksen justifyContent
-        alignItems: "center",
-        justifyContent: "space-between",
-    },
-    welcomeContainer: {
-        flex:8,
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    startContainer: {
-        flex: 1,
-        width: "80%",
-    },
-    button: {
-        textAlign: "center",
-        backgroundColor: "#eeeeee",
-        borderColor: "#000",
-        borderWidth: 1,
-        marginTop: 20,
-        lineHeight: 40,
-        fontSize: 18,
-        fontWeight: 450,
-        borderRadius: 5,
-    },
-    headerText: {
-        fontWeight: 600,
-        fontSize: 44,
-        lineHeight: 60,
-        letterSpacing: 5,
-        paddingBottom: 20,
-        paddingTop: 20,
-        // font family Josephin Sans yapilacak
-    },
-})
