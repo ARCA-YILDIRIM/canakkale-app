@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -7,11 +7,16 @@ import {
   Image,
   TouchableOpacity,
   Platform,
+  TextInput,
+  Keyboard,
+  Linking,
+  Alert,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import Icons from "react-native-vector-icons/MaterialIcons";
-import { COLORS } from "./styles";
+import Icons2 from "react-native-vector-icons/AntDesign";
+import { COLORS, SIZES } from "./styles";
 import ButtonTab from "../components/ButtonTab";
 
 // Placeholder image for testing without network
@@ -22,6 +27,10 @@ export default function MapScreen() {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [mapReady, setMapReady] = useState(false);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const mapRef = useRef(null);
 
   // Çanakkale bölgesindeki popüler yerler
   const popularPlaces = [
@@ -61,6 +70,54 @@ export default function MapScreen() {
       workingHours: "24 Saat Açık",
       entranceFee: "Feribot Ücreti: 30 TL",
     },
+    {
+      id: "aynali_carsi",
+      name: "Aynalı Çarşı",
+      latitude: 40.1552,
+      longitude: 26.4086,
+      description:
+        "Tarihi Çanakkale çarşısı, geleneksel el sanatları ve hediyelik eşya dükkanlarıyla ünlüdür.",
+      image: placeholderImage,
+      rating: 4.5,
+      workingHours: "09:00 - 20:00",
+      entranceFee: "Ücretsiz",
+    },
+    {
+      id: "saat_kulesi",
+      name: "Saat Kulesi",
+      latitude: 40.1548,
+      longitude: 26.4079,
+      description:
+        "Çanakkale'nin simgelerinden biri olan Saat Kulesi, 1897 yılında inşa edilmiştir.",
+      image: placeholderImage,
+      rating: 4.6,
+      workingHours: "24 Saat Görülebilir",
+      entranceFee: "Ücretsiz",
+    },
+    {
+      id: "assos",
+      name: "Assos Antik Kenti",
+      latitude: 39.4888,
+      longitude: 26.3373,
+      description:
+        "Deniz manzaralı konumu ve korunagelmiş yapıları ile Assos, bölgenin en etkileyici antik kentlerinden biridir.",
+      image: placeholderImage,
+      rating: 4.8,
+      workingHours: "08:00 - 19:00",
+      entranceFee: "80 TL",
+    },
+    {
+      id: "gokceada",
+      name: "Gökçeada",
+      latitude: 40.1999,
+      longitude: 25.9075,
+      description:
+        "Türkiye'nin en büyük adası, doğal güzellikleri ve kültürel mirası ile öne çıkar.",
+      image: placeholderImage,
+      rating: 4.8,
+      workingHours: "24 Saat Açık",
+      entranceFee: "Feribot Ücreti: 35 TL",
+    },
   ];
 
   useEffect(() => {
@@ -83,6 +140,64 @@ export default function MapScreen() {
     getLocation();
   }, []);
 
+  // Arama işlevi
+  const handleSearch = (text) => {
+    setSearchQuery(text);
+    if (text.trim() === "") {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+
+    const filteredPlaces = popularPlaces.filter((place) =>
+      place.name.toLowerCase().includes(text.toLowerCase())
+    );
+    setSearchResults(filteredPlaces);
+    setShowSearchResults(true);
+  };
+
+  // Arama sonucuna göre konumu değiştir
+  const handleSelectSearchResult = (place) => {
+    setSelectedPlace(place);
+    setShowSearchResults(false);
+    Keyboard.dismiss();
+
+    // Haritayı seçilen konuma taşı
+    mapRef.current?.animateToRegion(
+      {
+        latitude: place.latitude,
+        longitude: place.longitude,
+        latitudeDelta: 0.02,
+        longitudeDelta: 0.02,
+      },
+      1000
+    );
+  };
+
+  // Google Maps'te yol tarifi için fonksiyon
+  const openDirections = (place) => {
+    const url = Platform.select({
+      ios: `maps://app?saddr=${location?.coords.latitude},${location?.coords.longitude}&daddr=${place.latitude},${place.longitude}`,
+      android: `google.navigation:q=${place.latitude},${place.longitude}`,
+    });
+
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          const browserUrl = `https://www.google.com/maps/dir/?api=1&origin=${location?.coords.latitude},${location?.coords.longitude}&destination=${place.latitude},${place.longitude}`;
+          Linking.openURL(browserUrl);
+        }
+      })
+      .catch((err) => {
+        Alert.alert(
+          "Hata",
+          "Harita uygulamasını açarken bir sorun oluştu: " + err.message
+        );
+      });
+  };
+
   // Hata mesajını göster
   if (error) {
     return (
@@ -94,15 +209,55 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          <Icons2 name="search1" size={20} color="#888" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Yer ara..."
+            placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={handleSearch}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => {
+                setSearchQuery("");
+                setSearchResults([]);
+                setShowSearchResults(false);
+              }}
+            >
+              <Icons name="close" size={20} color="#888" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Arama Sonuçları */}
+        {showSearchResults && searchResults.length > 0 && (
+          <View style={styles.searchResultsContainer}>
+            {searchResults.map((place) => (
+              <TouchableOpacity
+                key={place.id}
+                style={styles.searchResultItem}
+                onPress={() => handleSelectSearchResult(place)}
+              >
+                <Icons name="location-on" size={20} color={COLORS.primary} />
+                <Text style={styles.searchResultText}>{place.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      </View>
+
       {/* Map yüklenene kadar loading göster */}
-      {!location && (
+      {!location ? (
         <View style={styles.loadingContainer}>
           <Text>Konum yükleniyor...</Text>
         </View>
-      )}
-
-      {location ? (
+      ) : (
         <MapView
+          ref={mapRef}
           style={styles.map}
           initialRegion={{
             latitude: 40.1633,
@@ -141,10 +296,6 @@ export default function MapScreen() {
             </>
           )}
         </MapView>
-      ) : (
-        <View style={styles.loadingContainer}>
-          <Text>Konum yükleniyor...</Text>
-        </View>
       )}
 
       {/* Yer Detayları Modalı */}
@@ -179,12 +330,22 @@ export default function MapScreen() {
                   <Text>Giriş Ücreti: {selectedPlace.entranceFee}</Text>
                 </View>
 
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setSelectedPlace(null)}
-                >
-                  <Text style={styles.closeButtonText}>Kapat</Text>
-                </TouchableOpacity>
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity
+                    style={styles.directionButton}
+                    onPress={() => openDirections(selectedPlace)}
+                  >
+                    <Icons name="directions" size={20} color="#fff" />
+                    <Text style={styles.directionButtonText}>Yol Tarifi</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setSelectedPlace(null)}
+                  >
+                    <Text style={styles.closeButtonText}>Kapat</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </View>
@@ -211,6 +372,57 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  searchContainer: {
+    position: "absolute",
+    top: 10,
+    left: 0,
+    right: 0,
+    zIndex: 5,
+    paddingHorizontal: 16,
+  },
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#efefef",
+    borderRadius: SIZES.radius,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  searchResultsContainer: {
+    backgroundColor: "#fff",
+    borderRadius: SIZES.radius,
+    marginTop: 5,
+    padding: 5,
+    maxHeight: 200,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  searchResultItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  searchResultText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#333",
   },
   loadingContainer: {
     flex: 1,
@@ -262,12 +474,32 @@ const styles = StyleSheet.create({
   modalDescription: {
     marginVertical: 10,
   },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
+  },
+  directionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#4CAF50",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginRight: 10,
+  },
+  directionButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    marginLeft: 5,
+  },
   closeButton: {
-    marginTop: 10,
     padding: 10,
     backgroundColor: COLORS.primary,
     alignItems: "center",
     borderRadius: 5,
+    flex: 1,
   },
   closeButtonText: {
     color: "white",
